@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz Homem-Aranha — 10 Perguntas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --red: #e11d2e;
+      --blue: #1e4fd7;
+      --gold: #f2d36b;
+      --card: rgba(12, 10, 18, 0.9);
+      --correct: #3dd68c;
+      --wrong: #ff6b6b;
+      --text: #f4f1fb;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Nunito", system-ui, sans-serif;
+      min-height: 100vh;
+      color: var(--text);
+      background:
+        radial-gradient(900px 500px at 88% -12%, rgba(225, 29, 46, 0.28), transparent 52%),
+        radial-gradient(820px 460px at -12% 112%, rgba(30, 79, 215, 0.28), transparent 50%),
+        linear-gradient(165deg, #12080d 0%, #161428 48%, #0b0a12 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+    }
+
+    .wrap { width: 100%; max-width: 740px; }
+
+    header { text-align: center; margin-bottom: 20px; }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(180deg, #ff4b5c, var(--red));
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    header h1 {
+      font-family: "Cinzel", serif;
+      font-size: clamp(1.45rem, 4vw, 2.2rem);
+      letter-spacing: 0.04em;
+      color: #ffe7ea;
+      text-shadow: 0 0 22px rgba(225, 29, 46, 0.35);
+    }
+
+    header p {
+      margin-top: 8px;
+      opacity: 0.88;
+      font-size: 0.98rem;
+    }
+
+    .progress-wrap {
+      height: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--blue), var(--red));
+      border-radius: 99px;
+      transition: width 0.35s ease;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(225, 29, 46, 0.35);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.42);
+      backdrop-filter: blur(10px);
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--gold);
+      margin-bottom: 14px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .question {
+      font-size: 1.22rem;
+      font-weight: 800;
+      line-height: 1.45;
+      margin-bottom: 20px;
+    }
+
+    .options { display: grid; gap: 12px; }
+
+    .option {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text);
+      text-align: left;
+      padding: 14px 16px;
+      border-radius: 14px;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.2s, background 0.2s;
+    }
+
+    .option:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: var(--red);
+      background: rgba(225, 29, 46, 0.12);
+    }
+
+    .option:disabled { cursor: default; }
+    .option.correct {
+      background: rgba(61, 214, 140, 0.18);
+      border-color: var(--correct);
+    }
+    .option.wrong {
+      background: rgba(255, 107, 107, 0.16);
+      border-color: var(--wrong);
+    }
+
+    .feedback {
+      min-height: 28px;
+      margin-top: 16px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .feedback.ok { color: var(--correct); }
+    .feedback.bad { color: var(--wrong); }
+
+    .actions {
+      margin-top: 18px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      background: linear-gradient(180deg, #ff4b5c, var(--red));
+      color: #fff;
+      font-weight: 800;
+      padding: 12px 22px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .result { text-align: center; display: none; }
+    .result h2 {
+      font-family: "Cinzel", serif;
+      color: #ffe7ea;
+      font-size: 1.75rem;
+      margin-bottom: 10px;
+    }
+    .score {
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--red);
+      margin: 8px 0 16px;
+    }
+    .result p { opacity: 0.92; margin-bottom: 22px; line-height: 1.55; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="badge">Queens, Nova York</div>
+      <h1>Quiz do Homem-Aranha</h1>
+      <p>10 perguntas de múltipla escolha. Com grandes poderes… você já sabe o resto.</p>
+    </header>
+
+    <div class="progress-wrap">
+      <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <section class="card" id="quiz-card">
+      <div class="meta">
+        <span id="q-num">Pergunta 1 / 10</span>
+        <span id="live-score">Pontos: 0</span>
+      </div>
+      <h2 class="question" id="question"></h2>
+      <div class="options" id="options"></div>
+      <p class="feedback" id="feedback"></p>
+      <div class="actions">
+        <button class="btn" id="next-btn" disabled>Próxima</button>
+      </div>
+    </section>
+
+    <section class="card result" id="result-card">
+      <h2>Missão encerrada</h2>
+      <div class="score" id="final-score"></div>
+      <p id="final-msg"></p>
+      <button class="btn" id="restart-btn">Balançar de novo</button>
+    </section>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "Sobre as diferenças entre Peter Parker e Miles Morales, qual alternativa está correta?",
+        options: [
+          "Peter possui camuflagem e veneno elétrico, enquanto Miles utiliza apenas força e agilidade.",
+          "Peter nasceu com poderes, enquanto Miles os recebeu por meio de treinamento científico.",
+          "Peter utiliza somente tecnologia, enquanto Miles depende exclusivamente de habilidades naturais.",
+          "Peter possui habilidades tradicionais, enquanto Miles apresenta poderes adicionais, como camuflagem e veneno."
+        ],
+        answer: 3,
+        why: "Peter tem os poderes clássicos. Miles tem esses e mais a camuflagem e o veneno."
+      },
+      {
+        q: "A origem de Miguel O'Hara apresenta diferenças importantes em relação às versões tradicionais. Qual alternativa está correta?",
+        options: [
+          "Miguel recebeu seus poderes após ser mordido por uma aranha radioativa durante uma experiência escolar.",
+          "Miguel desenvolveu características aracnídeas após alterações genéticas realizadas em seu próprio organismo.",
+          "Miguel recebeu seus poderes diretamente de Peter Parker após viajar para uma realidade alternativa.",
+          "Miguel nasceu com seus poderes e passou a utilizá-los somente depois de ingressar na Spider-Society."
+        ],
+        answer: 1,
+        why: "Miguel O'Hara ganhou poderes por alteração genética no próprio organismo, não por uma picada clássica."
+      },
+      {
+        q: "Sobre Gwen Stacy como Spider-Gwen, qual alternativa melhor descreve sua realidade?",
+        options: [
+          "Gwen ocupa o papel de Peter Parker em sua realidade, enquanto Peter possui uma trajetória completamente diferente.",
+          "Gwen recebe seus poderes de Miles Morales e posteriormente passa a integrar a Spider-Society.",
+          "Gwen é mordida por uma aranha, enquanto Peter Parker segue outro caminho e enfrenta consequências diferentes.",
+          "Gwen recebe seus poderes de Miguel O'Hara e posteriormente retorna ao seu universo original."
+        ],
+        answer: 2,
+        why: "Na Terra-65, Gwen é picada pela aranha. Peter segue outro destino e não vira o Homem-Aranha."
+      },
+      {
+        q: "A chamada Web of Life and Destiny possui importância na mitologia aracnídea. Qual alternativa apresenta melhor seu significado?",
+        options: [
+          "É uma máquina construída por Miguel O'Hara para controlar todas as dimensões conhecidas pela Spider-Society.",
+          "É uma tecnologia criada por Peter Parker para localizar diferentes versões aracnídeas existentes no multiverso.",
+          "É uma dimensão habitada exclusivamente por entidades responsáveis por conceder poderes aos Homens-Aranha.",
+          "É uma estrutura relacionada às diferentes manifestações aracnídeas e às conexões existentes entre seus universos."
+        ],
+        answer: 3,
+        why: "A Teia da Vida e do Destino liga as várias manifestações aracnídeas e os universos delas."
+      },
+      {
+        q: "Ben Reilly possui uma relação bastante complexa com Peter Parker. Qual alternativa está correta?",
+        options: [
+          "Ben é irmão biológico de Peter e foi separado dele durante a infância por seus responsáveis.",
+          "Ben é uma versão futura de Peter que retornou ao passado para assumir sua identidade durante uma crise.",
+          "Ben foi criado por Miguel O'Hara para substituir Peter em uma realidade onde ele havia desaparecido.",
+          "Ben é um clone de Peter Parker, cuja existência provoca questionamentos sobre identidade e individualidade."
+        ],
+        answer: 3,
+        why: "Ben Reilly é um clone de Peter Parker. Por isso a história dele gira em torno de identidade."
+      },
+      {
+        q: "Sobre o Homem-Aranha Noir, qual característica melhor define sua representação?",
+        options: [
+          "Sua história apresenta uma ambientação sombria e inspirada pelo contexto narrativo característico do gênero noir.",
+          "Sua versão utiliza tecnologia futurista e atua principalmente em cidades controladas por grandes corporações.",
+          "Sua origem está relacionada a experimentos científicos realizados pela Spider-Society para criar novos heróis.",
+          "Sua identidade pertence a uma versão de Peter Parker que perdeu completamente seus poderes durante uma batalha."
+        ],
+        answer: 0,
+        why: "O Homem-Aranha Noir vive em uma Nova York antiga, sombria e no estilo dos filmes e livros noir."
+      },
+      {
+        q: "A relação entre Peni Parker e SP//dr diferencia essa personagem de várias outras versões. Qual alternativa está correta?",
+        options: [
+          "Peni possui poderes aracnídeos tradicionais e utiliza um uniforme tecnológico semelhante ao de Peter Parker.",
+          "Peni opera uma unidade mecânica ligada a uma conexão especial entre ela e uma aranha geneticamente modificada.",
+          "Peni recebe seus poderes de Miguel O'Hara e utiliza tecnologia para controlar diferentes versões do Homem-Aranha.",
+          "Peni é uma versão adolescente de Gwen Stacy que utiliza uma armadura para compensar sua ausência de poderes."
+        ],
+        answer: 1,
+        why: "Peni pilota o SP//dr, um robô ligado a ela e a uma aranha geneticamente modificada."
+      },
+      {
+        q: "Hobie Brown, conhecido como Spider-Punk, possui uma identidade bastante característica. Qual alternativa está correta?",
+        options: [
+          "Hobie é uma versão de Peter Parker que abandonou o heroísmo para seguir carreira como músico profissional.",
+          "Hobie é uma versão de Ben Reilly que utiliza uma estética punk para esconder sua verdadeira identidade.",
+          "Hobie é uma versão de Miguel O'Hara que rejeitou a liderança da Spider-Society por razões pessoais.",
+          "Hobie é uma versão de Hobie Brown associada à estética punk e à resistência contra estruturas autoritárias."
+        ],
+        answer: 3,
+        why: "Spider-Punk é o Hobie Brown da Terra-138: visual punk e luta contra sistemas autoritários."
+      },
+      {
+        q: "Ao comparar diferentes Homens-Aranha, qual característica aparece de maneira recorrente entre várias versões?",
+        options: [
+          "Todos possuem exatamente a mesma origem e recebem seus poderes da mesma espécie de aranha.",
+          "Todos apresentam a mesma personalidade, embora utilizem uniformes diferentes em seus respectivos universos.",
+          "Todos precisam necessariamente utilizar lançadores mecânicos para produzir suas teias durante os combates.",
+          "Muitas versões preservam ideias de responsabilidade e proteção, mesmo apresentando origens e características diferentes."
+        ],
+        answer: 3,
+        why: "As origens mudam, mas a ideia de responsabilidade e de proteger os outros aparece em várias versões."
+      },
+      {
+        q: "Considerando Peter Parker, Miles Morales, Gwen Stacy, Miguel O'Hara, Ben Reilly, Hobie Brown, Peni Parker, Noir e outras versões, qual conclusão melhor representa o conceito do Homem-Aranha no multiverso?",
+        options: [
+          "Todas as versões são essencialmente iguais, pois suas diferenças estão limitadas aos uniformes e aos nomes utilizados.",
+          "Peter Parker é a única versão legítima, enquanto os demais personagens representam apenas variações temporárias de sua identidade.",
+          "As diferentes versões possuem origens e características próprias, mas compartilham elementos que permitem reconhecê-las como manifestações do mesmo arquétipo.",
+          "Todas as versões recebem seus poderes da mesma entidade, que escolhe diferentes indivíduos para proteger cada realidade existente."
+        ],
+        answer: 2,
+        why: "Cada versão é diferente, mas todas fazem parte do mesmo arquétipo do Homem-Aranha."
+      }
+    ];
+
+    let index = 0;
+    let score = 0;
+    let locked = false;
+
+    const qEl = document.getElementById("question");
+    const optEl = document.getElementById("options");
+    const feedbackEl = document.getElementById("feedback");
+    const nextBtn = document.getElementById("next-btn");
+    const qNum = document.getElementById("q-num");
+    const liveScore = document.getElementById("live-score");
+    const progress = document.getElementById("progress");
+    const quizCard = document.getElementById("quiz-card");
+    const resultCard = document.getElementById("result-card");
+    const finalScore = document.getElementById("final-score");
+    const finalMsg = document.getElementById("final-msg");
+
+    function renderQuestion() {
+      const current = questions[index];
+      locked = false;
+      qEl.textContent = current.q;
+      qNum.textContent = `Pergunta ${index + 1} / ${questions.length}`;
+      liveScore.textContent = `Pontos: ${score}`;
+      progress.style.width = `${(index / questions.length) * 100}%`;
+      feedbackEl.textContent = "";
+      feedbackEl.className = "feedback";
+      nextBtn.disabled = true;
+      nextBtn.textContent = index === questions.length - 1 ? "Ver resultado" : "Próxima";
+
+      optEl.innerHTML = "";
+      current.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.className = "option";
+        btn.textContent = `${String.fromCharCode(65 + i)}) ${opt}`;
+        btn.addEventListener("click", () => choose(i, btn));
+        optEl.appendChild(btn);
+      });
+    }
+
+    function choose(i, btn) {
+      if (locked) return;
+      locked = true;
+      const current = questions[index];
+      const buttons = [...optEl.querySelectorAll(".option")];
+      buttons.forEach((b) => (b.disabled = true));
+
+      if (i === current.answer) {
+        btn.classList.add("correct");
+        feedbackEl.textContent = "Acertou! " + current.why;
+        feedbackEl.classList.add("ok");
+        score++;
+        liveScore.textContent = `Pontos: ${score}`;
+      } else {
+        btn.classList.add("wrong");
+        buttons[current.answer].classList.add("correct");
+        feedbackEl.textContent = "Errou. " + current.why;
+        feedbackEl.classList.add("bad");
+      }
+      nextBtn.disabled = false;
+    }
+
+    function showResult() {
+      quizCard.classList.add("hidden");
+      resultCard.style.display = "block";
+      progress.style.width = "100%";
+      finalScore.textContent = `${score} / ${questions.length}`;
+
+      let msg = "";
+      if (score === 10) msg = "Sentido-aranha no máximo. Até o Clarim Diário teria que admitir: você manja do assunto.";
+      else if (score >= 8) msg = "Muito bem, herói do Queens. Falta pouco para virar o fotógrafo oficial do jornal.";
+      else if (score >= 5) msg = "Bom começo. Treina mais os balanços e revisa a origem do Peter.";
+      else msg = "Todo herói começa assim. Assiste um filme clássico e tenta de novo.";
+      finalMsg.textContent = msg;
+    }
+
+    nextBtn.addEventListener("click", () => {
+      if (index < questions.length - 1) {
+        index++;
+        renderQuestion();
+      } else {
+        showResult();
+      }
+    });
+
+    document.getElementById("restart-btn").addEventListener("click", () => {
+      index = 0;
+      score = 0;
+      resultCard.style.display = "none";
+      quizCard.classList.remove("hidden");
+      renderQuestion();
+    });
+
+    renderQuestion();
+  </script>
+</body>
+</html>
